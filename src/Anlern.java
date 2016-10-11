@@ -26,8 +26,8 @@ public class Anlern {
             System.out.println(s);
         }
 
-        Spam test = new Spam();
-        test.get("Test");
+        //Spam test = new Spam();
+        //test.get("Test");
     }
 
 

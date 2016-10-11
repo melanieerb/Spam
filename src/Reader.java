@@ -32,8 +32,7 @@ public class Reader {
             br.close();
         }
 
-        List<String> split = Arrays.asList(content.split(" "));
-        // split.removeAll(Arrays.asList("\\n"));
+        List<String> split = Arrays.asList(content.split("\\s+"));
 
         return split;
     }
