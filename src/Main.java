@@ -1,5 +1,4 @@
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 
@@ -8,22 +7,21 @@ import java.util.List;
  */
 public class Main {
 
-    private static Integer amountOfHamEmails;
-    private static Integer amountOfSpamEmails;
     private static HashSet<String> words = new HashSet<>();
-    private static HashMap<String, Integer> wordCounterHam;
-    private static HashMap<String, Integer> wordCounterSpam;
     private static HashMap<String, Word> spamProbability = new HashMap<>();
+    private static final Double THRESHOLD_VALUE = 0.3;
+    private static final Double DEFAULT_ALPHA = 0.000000000000000001;
+    private static final Integer AMOUNT_OF_EMAILS = 100;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         // ***********************************************************************************************************//
         // Learn
         // ***********************************************************************************************************//
-        amountOfHamEmails = 100;
-        amountOfSpamEmails = 100;
-        wordCounterHam = Reader.readAndCountWordsOfEmails("ham-anlern", 100);
-        wordCounterSpam = Reader.readAndCountWordsOfEmails("spam-anlern", 100);
+        Integer amountOfHamEmails = AMOUNT_OF_EMAILS;
+        Integer amountOfSpamEmails = AMOUNT_OF_EMAILS;
+        HashMap<String, Integer> wordCounterHam = Reader.readAndCountWordsOfEmails("ham-anlern", amountOfHamEmails);
+        HashMap<String, Integer> wordCounterSpam = Reader.readAndCountWordsOfEmails("spam-anlern", amountOfSpamEmails);
 //        wordCounterHam = Reader.readAndCountWordsOfEmails("custom/ham", 100);
 //        wordCounterSpam = Reader.readAndCountWordsOfEmails("custom/spam", 100);
 
@@ -46,7 +44,7 @@ public class Main {
             Word w = new Word(word);
             double countSpam;
             if(wordCounterSpam.get(word) == null){
-                w.pS = 0.01;
+                w.pS = DEFAULT_ALPHA;
             } else {
                 countSpam = wordCounterSpam.get(word);
                 // P( word | spam )
@@ -55,7 +53,7 @@ public class Main {
 
             double countHam;
             if(wordCounterHam.get(word) == null){
-                w.pH = 0.01;
+                w.pH = DEFAULT_ALPHA;
             } else {
                 countHam = wordCounterHam.get(word);
                 // P( word | ham )
@@ -65,45 +63,74 @@ public class Main {
             spamProbability.put(word, w);
         }
 
+        System.out.println("Learn");
+        System.out.println("===================================================");
+        System.out.println("Words: " + words.size());
+        System.out.println("Amount of ham emails: " + amountOfHamEmails);
+        System.out.println("Amount of spam emails: " + amountOfSpamEmails);
+        System.out.println("");
+
         // ***********************************************************************************************************//
         // Calibration
         // ***********************************************************************************************************//
 
-        File[] files = new File("resources/spam-kallibrierung").listFiles();
-        // File[] files = new File("resources/custom").listFiles();
+        Integer[] calibrationResultHAM = testEmails("ham-kallibrierung");
+        Integer[] calibrationResultSPAM = testEmails("spam-kallibrierung");
 
-        int spamCounter = 0;
-        int hamCounter = 0;
+        System.out.println("Calibration");
+        System.out.println("===================================================");
+        System.out.println("ham-calibration");
+        System.out.println("Spam: " + calibrationResultHAM[0]);
+        System.out.println("Ham: " + calibrationResultHAM[1]);
+        System.out.println("spam-calibration");
+        System.out.println("Spam: " + calibrationResultSPAM[0]);
+        System.out.println("Ham: " + calibrationResultSPAM[1]);
+        System.out.println("");
 
-        if(files != null) {
+        // ***********************************************************************************************************//
+        // Test
+        // ***********************************************************************************************************//
 
-            // loop through every file in the specified folder above
-            for (File file : files) {
+        Integer[] testResultHAM = testEmails("ham-test");
+        Integer[] testResultSPAM = testEmails("spam-test");
 
-                if (!file.isDirectory()) {
+        double percentHAM =  (double) testResultHAM[1] / (testResultHAM[1] + testResultHAM[0]) * 100;
+        double percentSPAM =  (double) testResultSPAM[0] / (testResultSPAM[1] + testResultSPAM[0]) * 100;
 
-                    List<String> email = null;
-                    try {
-                        email = Reader.getContent("spam-kallibrierung", file.getName());
-                        //email = Reader.getContent("custom", file.getName());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        System.out.println("Test");
+        System.out.println("===================================================");
+        System.out.println("ham-test");
+        System.out.println("Marked as ham: " + percentHAM + "%");
+        System.out.println("spam-test");
+        System.out.println("Marked as spam: " + percentSPAM + "%");
+        System.out.println("");
 
-                    if(calculate(email) > 0.3){
-                        spamCounter++;
-                    } else {
-                        hamCounter++;
-                    }
-                }
+        // ***********************************************************************************************************//
+        // Test custom email
+        // ***********************************************************************************************************//
 
-            }
+        System.out.println("Read mail from disk");
+        System.out.println("===================================================");
+        File file = new File("resources/mail/mail");
 
+        List<String> email = null;
+        try {
+            email = Reader.getContent("mail", file.getName());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        System.out.println("Spam: " + spamCounter);
-        System.out.println("Ham: " + hamCounter);
-
+        System.out.println("Spam probability: " + calculate(email) +"%");
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        System.out.print("Would you like to move this email to the spam folder? [J/N]");
+        String s = br.readLine();
+        if(s.equals("J")){
+            copyFile("resources/mail/mail", "resources/spam-anlern/mail");
+            System.out.print("Mail has been added to the spam-anlern folder");
+        } else {
+            copyFile("resources/mail/mail", "resources/ham-anlern/mail");
+            System.out.print("Mail has been added to the ham-anlern folder");
+        }
     }
 
     /**
@@ -125,6 +152,60 @@ public class Main {
         }
 
         return (AnB_S / (AnB_S + AnB));
+    }
+
+    private static Integer[] testEmails(String folder){
+
+        File[] files = new File("resources/" + folder).listFiles();
+        Integer[] counter = new Integer[2];
+
+        // spam counter
+        counter[0] = 0;
+        // ham counter
+        counter[1] = 0;
+
+        if(files != null) {
+            // loop through every file in the specified folder above
+            for (File file : files) {
+                if (!file.isDirectory()) {
+
+                    List<String> email = null;
+                    try {
+                        email = Reader.getContent(folder, file.getName());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    if(calculate(email) > THRESHOLD_VALUE){
+                        counter[0]++;
+                    } else {
+                        counter[1]++;
+                    }
+                }
+            }
+        }
+        return counter;
+    }
+
+    public static void copyFile (String source, String dest) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            is.close();
+            os.close();
+        }
     }
 
     /**
