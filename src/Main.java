@@ -9,6 +9,7 @@ public class Main {
 
     private static HashSet<String> words = new HashSet<>();
     private static HashMap<String, Word> spamProbability = new HashMap<>();
+    private static final Boolean CUSTOM = true;
     private static final Double THRESHOLD_VALUE = 0.3;
     private static final Double DEFAULT_ALPHA = 0.000000000000000001;
     private static final Integer AMOUNT_OF_EMAILS = 100;
@@ -22,8 +23,12 @@ public class Main {
         Integer amountOfSpamEmails = AMOUNT_OF_EMAILS;
         HashMap<String, Integer> wordCounterHam = Reader.readAndCountWordsOfEmails("ham-anlern", amountOfHamEmails);
         HashMap<String, Integer> wordCounterSpam = Reader.readAndCountWordsOfEmails("spam-anlern", amountOfSpamEmails);
-//        wordCounterHam = Reader.readAndCountWordsOfEmails("custom/ham", 100);
-//        wordCounterSpam = Reader.readAndCountWordsOfEmails("custom/spam", 100);
+
+        if(CUSTOM){
+            System.out.println("Custom Mode");
+            wordCounterHam = Reader.readAndCountWordsOfEmails("custom/ham", 100);
+            wordCounterSpam = Reader.readAndCountWordsOfEmails("custom/spam", 100);
+        }
 
         // Put learned words into a single list (without probability value)
         for (Object o : wordCounterHam.entrySet()) {
@@ -70,66 +75,84 @@ public class Main {
         System.out.println("Amount of spam emails: " + amountOfSpamEmails);
         System.out.println("");
 
-        // ***********************************************************************************************************//
-        // Calibration
-        // ***********************************************************************************************************//
 
-        Integer[] calibrationResultHAM = testEmails("ham-kallibrierung");
-        Integer[] calibrationResultSPAM = testEmails("spam-kallibrierung");
+        if(CUSTOM){
 
-        System.out.println("Calibration");
-        System.out.println("===================================================");
-        System.out.println("ham-calibration");
-        System.out.println("Spam: " + calibrationResultHAM[0]);
-        System.out.println("Ham: " + calibrationResultHAM[1]);
-        System.out.println("spam-calibration");
-        System.out.println("Spam: " + calibrationResultSPAM[0]);
-        System.out.println("Ham: " + calibrationResultSPAM[1]);
-        System.out.println("");
+            List<String> email = null;
+            try {
+                email = Reader.getContent("custom", "testMail");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        // ***********************************************************************************************************//
-        // Test
-        // ***********************************************************************************************************//
+            System.out.println("TEST Custom");
+            System.out.println("===================================================");
+            System.out.println("Probability: " + calculate(email) + "38%");
+            System.out.println("");
 
-        Integer[] testResultHAM = testEmails("ham-test");
-        Integer[] testResultSPAM = testEmails("spam-test");
-
-        double percentHAM =  (double) testResultHAM[1] / (testResultHAM[1] + testResultHAM[0]) * 100;
-        double percentSPAM =  (double) testResultSPAM[0] / (testResultSPAM[1] + testResultSPAM[0]) * 100;
-
-        System.out.println("Test");
-        System.out.println("===================================================");
-        System.out.println("ham-test");
-        System.out.println("Marked as ham: " + percentHAM + "%");
-        System.out.println("spam-test");
-        System.out.println("Marked as spam: " + percentSPAM + "%");
-        System.out.println("");
-
-        // ***********************************************************************************************************//
-        // Test custom email
-        // ***********************************************************************************************************//
-
-        System.out.println("Read mail from disk");
-        System.out.println("===================================================");
-        File file = new File("resources/mail/mail");
-
-        List<String> email = null;
-        try {
-            email = Reader.getContent("mail", file.getName());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("Spam probability: " + calculate(email) +"%");
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        System.out.print("Would you like to move this email to the spam folder? [J/N]");
-        String s = br.readLine();
-        if(s.equals("J")){
-            copyFile("resources/mail/mail", "resources/spam-anlern/mail");
-            System.out.print("Mail has been added to the spam-anlern folder");
         } else {
-            copyFile("resources/mail/mail", "resources/ham-anlern/mail");
-            System.out.print("Mail has been added to the ham-anlern folder");
+
+            // ***********************************************************************************************************//
+            // Calibration
+            // ***********************************************************************************************************//
+
+            Integer[] calibrationResultHAM = testEmails("ham-kallibrierung");
+            Integer[] calibrationResultSPAM = testEmails("spam-kallibrierung");
+
+            System.out.println("Calibration");
+            System.out.println("===================================================");
+            System.out.println("ham-calibration");
+            System.out.println("Spam: " + calibrationResultHAM[0]);
+            System.out.println("Ham: " + calibrationResultHAM[1]);
+            System.out.println("spam-calibration");
+            System.out.println("Spam: " + calibrationResultSPAM[0]);
+            System.out.println("Ham: " + calibrationResultSPAM[1]);
+            System.out.println("");
+
+            // ***********************************************************************************************************//
+            // Test
+            // ***********************************************************************************************************//
+
+            Integer[] testResultHAM = testEmails("ham-test");
+            Integer[] testResultSPAM = testEmails("spam-test");
+
+            double percentHAM = (double) testResultHAM[1] / (testResultHAM[1] + testResultHAM[0]) * 100;
+            double percentSPAM = (double) testResultSPAM[0] / (testResultSPAM[1] + testResultSPAM[0]) * 100;
+
+            System.out.println("Test");
+            System.out.println("===================================================");
+            System.out.println("ham-test");
+            System.out.println("Marked as ham: " + percentHAM + "%");
+            System.out.println("spam-test");
+            System.out.println("Marked as spam: " + percentSPAM + "%");
+            System.out.println("");
+
+            // ***********************************************************************************************************//
+            // Test custom email
+            // ***********************************************************************************************************//
+
+            System.out.println("Read mail from disk");
+            System.out.println("===================================================");
+            File file = new File("resources/mail/mail");
+
+            List<String> email = null;
+            try {
+                email = Reader.getContent("mail", file.getName());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("Spam probability: " + calculate(email) + "%");
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Would you like to move this email to the spam folder? [J/N]");
+            String s = br.readLine();
+            if (s.equals("J")) {
+                copyFile("resources/mail/mail", "resources/spam-anlern/mail");
+                System.out.print("Mail has been added to the spam-anlern folder");
+            } else {
+                copyFile("resources/mail/mail", "resources/ham-anlern/mail");
+                System.out.print("Mail has been added to the ham-anlern folder");
+            }
         }
     }
 
