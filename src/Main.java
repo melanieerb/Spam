@@ -9,18 +9,18 @@ public class Main {
 
     private static HashSet<String> words = new HashSet<>();
     private static HashMap<String, Word> spamProbability = new HashMap<>();
-    private static final Boolean CUSTOM = true;
+    private static final Boolean CUSTOM = false;
     private static final Double THRESHOLD_VALUE = 0.3;
     private static final Double DEFAULT_ALPHA = 0.000000000000000001;
-    private static final Integer AMOUNT_OF_EMAILS = 100;
+    private static final Integer AMOUNT_OF_EMAILS = 10000;
 
     public static void main(String[] args) throws IOException {
 
         // ***********************************************************************************************************//
         // Learn
         // ***********************************************************************************************************//
-        Integer amountOfHamEmails = AMOUNT_OF_EMAILS;
-        Integer amountOfSpamEmails = AMOUNT_OF_EMAILS;
+        Integer amountOfHamEmails = Reader.countEmail("ham-anlern");
+        Integer amountOfSpamEmails = Reader.countEmail("spam-anlern");
         HashMap<String, Integer> wordCounterHam = Reader.readAndCountWordsOfEmails("ham-anlern", amountOfHamEmails);
         HashMap<String, Integer> wordCounterSpam = Reader.readAndCountWordsOfEmails("spam-anlern", amountOfSpamEmails);
 

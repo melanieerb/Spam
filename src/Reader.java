@@ -44,6 +44,11 @@ public class Reader {
         return split;
     }
 
+    public static Integer countEmail(String folder){
+        File[] files = new File("resources/" + folder).listFiles();
+        return files.length;
+    }
+
     /**
      * read all textfiles in a folder and return a list of words and their appearance
      * @param folder
