@@ -14,7 +14,7 @@ Der Test Modus orientiert sich am folgenden Beispiel:
 http://www.math.kit.edu/ianm4/~ritterbusch/seite/spam/de
 
 Es wird eine Mail aus ``resources/custom/ham`` sowie aus ``resources/custom/spam``
-gelesen. Danach wird eine vordefinierte Email*  mit 2 Wörtern einglesen und
+gelesen. Danach wird eine vordefinierte Email*  mit 2 Wörtern eingelesen und
 auf die Spamwahrscheinlichekeit geprüft. Das Ergebnis sollte ~0.38% sein.
 
 ``* resources/testMail``
@@ -55,7 +55,7 @@ private static class Word {
 }
 ```
 
-### Kallibrierung
+### Kalibrierung
 
 #### 1. Emails einlesen
 
@@ -85,11 +85,11 @@ return (AnB_S / (AnB_S + AnB));
 
 #### 1. Emails einlesen
 
-Ananlog zu Kallibrierung.
+Ananlog zu Kalibrierung.
 
 #### 2. Spamwahrscheinlichkeit berechnen
 
-Ananlog zu Kallibrierung.
+Ananlog zu Kalibrierung.
 
 #### 3. Output
 
