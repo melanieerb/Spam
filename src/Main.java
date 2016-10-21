@@ -11,7 +11,7 @@ public class Main {
     private static HashMap<String, Word> spamProbability = new HashMap<>();
     private static final Boolean TEST = false;
     private static final Double THRESHOLD_VALUE = 0.3;
-    private static final Double DEFAULT_ALPHA = 0.001;
+    private static final Double DEFAULT_ALPHA = 0.0008;
     private static final Integer AMOUNT_OF_EMAILS = 100;
 
     public static void main(String[] args) throws IOException {
