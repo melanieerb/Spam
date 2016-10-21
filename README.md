@@ -14,7 +14,7 @@ Der Test Modus orientiert sich am folgenden Beispiel:
 http://www.math.kit.edu/ianm4/~ritterbusch/seite/spam/de
 
 Es wird eine Mail aus ``resources/custom/ham`` sowie aus ``resources/custom/spam``
-gelesen. Danach wird eine vordefinierte Email*  mit 2 Wörtern eingelesen und
+eingelesen. Danach wird eine vordefinierte Email*  mit 2 Wörtern eingelesen und
 auf die Spamwahrscheinlichekeit geprüft. Das Ergebnis sollte ~0.38% sein.
 
 ``* resources/testMail``
@@ -59,14 +59,14 @@ private static class Word {
 
 #### 1. Emails einlesen
 
-Jede Email wird einglesen und in einzelnen Wörtern in eine Liste gespeichert.
+Jede Email wird eingelesen und in einzelnen Wörtern in eine Liste gespeichert.
 
 - ``List<String> email``
 
 #### 2. Spamwahrscheinlichkeit berechnen
 
 Nun wird die Spamwahrscheinlichkeit mithilfe der ``spamProbability`` HashMap
-berrechnet und anschliessend mit dem eingstellten Schwellenwert verglichen.
+berechnet und anschliessend mit dem eingstellten Schwellenwert verglichen.
 
 ```java
 double AnB_S = 1
