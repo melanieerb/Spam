@@ -9,10 +9,10 @@ public class Main {
 
     private static HashSet<String> words = new HashSet<>();
     private static HashMap<String, Word> spamProbability = new HashMap<>();
-    private static final Boolean CUSTOM = false;
+    private static final Boolean TEST = false;
     private static final Double THRESHOLD_VALUE = 0.3;
-    private static final Double DEFAULT_ALPHA = 0.000000000000000001;
-    private static final Integer AMOUNT_OF_EMAILS = 10000;
+    private static final Double DEFAULT_ALPHA = 0.001;
+    private static final Integer AMOUNT_OF_EMAILS = 100;
 
     public static void main(String[] args) throws IOException {
 
@@ -24,10 +24,12 @@ public class Main {
         HashMap<String, Integer> wordCounterHam = Reader.readAndCountWordsOfEmails("ham-anlern", amountOfHamEmails);
         HashMap<String, Integer> wordCounterSpam = Reader.readAndCountWordsOfEmails("spam-anlern", amountOfSpamEmails);
 
-        if(CUSTOM){
-            System.out.println("Custom Mode");
-            wordCounterHam = Reader.readAndCountWordsOfEmails("custom/ham", 100);
-            wordCounterSpam = Reader.readAndCountWordsOfEmails("custom/spam", 100);
+        if(TEST){
+            System.out.println("Test Mode");
+            amountOfHamEmails = AMOUNT_OF_EMAILS;
+            amountOfSpamEmails = AMOUNT_OF_EMAILS;
+            wordCounterHam = Reader.readAndCountWordsOfEmails("custom/ham", amountOfHamEmails);
+            wordCounterSpam = Reader.readAndCountWordsOfEmails("custom/spam", amountOfHamEmails);
         }
 
         // Put learned words into a single list (without probability value)
@@ -76,7 +78,7 @@ public class Main {
         System.out.println("");
 
 
-        if(CUSTOM){
+        if(TEST){
 
             List<String> email = null;
             try {
@@ -87,7 +89,7 @@ public class Main {
 
             System.out.println("TEST Custom");
             System.out.println("===================================================");
-            System.out.println("Probability: " + calculate(email) + "38%");
+            System.out.println("Probability: " + calculate(email) + "%");
             System.out.println("");
 
         } else {
