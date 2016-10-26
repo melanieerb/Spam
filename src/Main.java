@@ -9,10 +9,10 @@ public class Main {
 
     private static HashSet<String> words = new HashSet<>();
     private static HashMap<String, Word> spamProbability = new HashMap<>();
-    private static final Boolean CUSTOM = false;
+    private static final Boolean CUSTOM = true;
     private static final Double THRESHOLD_VALUE = 0.3;
-    private static final Double DEFAULT_ALPHA = 0.000000000000000001;
-    private static final Integer AMOUNT_OF_EMAILS = 10000;
+    private static final Double DEFAULT_ALPHA = 0.00001;
+    private static final Integer AMOUNT_OF_EMAILS = 1000;
 
     public static void main(String[] args) throws IOException {
 
@@ -166,15 +166,32 @@ public class Main {
         double AnB_S = 1;
         double AnB = 1;
 
+        /** Die Klassifizierungswerte ihres Programms sind noch ziemlich schlecht.
+            Das liegt daran, dass Sie in der calculate Funktion oft die Situation haben,
+            dass sowohl AnB als auch AnB_S Null ist. Anstelle also a1*a2*…*an/( a1*a2*…*an+ b1*b2*…*bn)
+            so wie Sie zu berechnen (also Zähler und Nenner separat), wäre es besser,
+            das zu 1/(1+b1/a1*b2/a2*…*bn/an) umzuformen und die Ausdrücke b_i/a_i direkt zu berechnen.
+
+                for(String word : email){
+                    Word w = spamProbability.get(word);
+                    if(w != null) {
+                    AnB_S = AnB_S * w.pS;
+                    AnB = AnB * w.pH;
+                    }
+                }
+                return (AnB_S / (AnB_S + AnB));
+         */
+
+
         for(String word : email){
             Word w = spamProbability.get(word);
             if(w != null) {
-                AnB_S = AnB_S * w.pS;
-                AnB = AnB * w.pH;
+                AnB = AnB * (w.pH / w.pS);
             }
         }
 
-        return (AnB_S / (AnB_S + AnB));
+        System.out.println(1 / (AnB_S + AnB));
+        return (1 / (AnB_S + AnB));
     }
 
     private static Integer[] testEmails(String folder){
